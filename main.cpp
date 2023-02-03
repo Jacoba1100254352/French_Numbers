@@ -97,17 +97,14 @@ int main()
         else rangeMax = userRandMax;
 
         if (desiredPracticeForm == WritToNum || randomOption == 1)
-            do {
-                WrittenToNum(practiceEnd);
-            } while (!practiceEnd && desiredPracticeForm != Random );
+            do WrittenToNum(practiceEnd);
+            while (!practiceEnd && desiredPracticeForm != Random );
         else if (desiredPracticeForm == NumToWrit || randomOption == 2)
-            do {
-                NumToWritten(practiceEnd);
-            } while (!practiceEnd && desiredPracticeForm != Random );
+            do NumToWritten(practiceEnd);
+            while (!practiceEnd && desiredPracticeForm != Random );
         else if (desiredPracticeForm == DaysMonths || randomOption == 3)
-            do {
-                DaysAndMonths(practiceEnd);
-            } while (!practiceEnd && desiredPracticeForm != Random );
+            do DaysAndMonths(practiceEnd);
+            while (!practiceEnd && desiredPracticeForm != Random );
         else throw invalid_argument("Error: Invalid practice form passed");
     } while (desiredPracticeForm == Random && !practiceEnd);
 
