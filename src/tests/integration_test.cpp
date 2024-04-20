@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include "../french_numbers.h"
 
-TEST_CASE("test empty input")
+TEST_CASE("Test WrittenFrenchNum0to99 function")
 {
     std::string result;
 
@@ -28,41 +28,46 @@ TEST_CASE("test empty input")
     WrittenFrenchNum0to99(result, number);
     CHECK(result == "quatre-vingt-dix-neuf-");
     result.clear();
+}
+
+TEST_CASE("Test WrittenFrenchNumbers function")
+{
+    std::string result;
 
     // Test for 100
-    number = 100;
+    unsigned long long number = 100;
     result = WrittenFrenchNumbers(number);
-    CHECK(result == "cent-");
+    CHECK(result == "cent");
     result.clear();
 
     // Test for 101
     number = 101;
-    WrittenFrenchNum0to99(result, number);
-    CHECK(result == "cent-un-");
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "cent-un");
     result.clear();
 
     // Test for 111
     number = 111;
-    WrittenFrenchNum0to99(result, number);
-    CHECK(result == "cent-onze-");
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "cent-onze");
     result.clear();
 
     // Test for 200
     number = 200;
-    WrittenFrenchNum0to99(result, number);
-    CHECK(result == "deux-cents-");
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "deux-cents");
     result.clear();
 
     // Test for 201
     number = 201;
-    WrittenFrenchNum0to99(result, number);
-    CHECK(result == "deux-cent-un-");
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "deux-cent-un");
     result.clear();
 
     // Test for 999
     number = 999;
-    WrittenFrenchNum0to99(result, number);
-    CHECK(result == "neuf-cent-quatre-vingt-dix-neuf-");
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "neuf-cent-quatre-vingt-dix-neuf");
     result.clear();
 
     // Test for 1000

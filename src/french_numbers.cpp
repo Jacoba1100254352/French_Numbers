@@ -237,7 +237,7 @@ void WrittenToNum(bool& practiceEnd)
 string WrittenFrenchNumbers(unsigned long long number)
 {
 	string WritNumbers;
-	const string Writ100to1Billion[5] = {"cent-", "cents-", "mille-", "millon-", "millard-"};
+	const string Writ100to1Billion[5] = {"cent", "cents", "mille", "million", "milliard"};
 
 	// Process billions
 	if (constexpr unsigned ONE_BILLION = 1000000000; number >= ONE_BILLION) {
@@ -245,6 +245,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[4];
 		number %= ONE_BILLION;
+		if (number > 0) WritNumbers += "-";
 	}
 
 	// Process millions
@@ -253,6 +254,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[3];
 		number %= ONE_MILLION;
+		if (number > 0) WritNumbers += "-";
 	}
 
 	// Process thousands
@@ -261,6 +263,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[2];
 		number %= ONE_THOUSAND;
+		if (number > 0) WritNumbers += "-";
 	}
 
 	// Process remaining numbers (0 to 999)
