@@ -1,126 +1,6 @@
-#include <chrono>
-#include <iostream>
-#include <map>
+#include "french_numbers.h"
+
 #include <random>
-#include <string>
-
-using namespace std;
-using namespace literals::chrono_literals;
-
-///   General Functions   ///
-unsigned long long RandomOption(double maxVal);
-unsigned StartingScript(unsigned&);
-
-//unsigned Timer();
-struct Timer {
-	chrono::time_point<chrono::steady_clock> start, end;
-	chrono::duration<float> duration{};
-
-	Timer()
-	{
-		start = chrono::high_resolution_clock::now();
-	}
-
-	/*    float startTimer()
-		{
-			start = chrono::high_resolution_clock::now();
-		}*/
-
-	//~Timer()
-	float endTimer()
-	{
-		end = chrono::high_resolution_clock::now();
-		duration = end - start;
-
-		//float ms = duration.count() * 1000.0f;
-		return duration.count(); // seconds
-		//cout << "Timer took " << ms << "ms" << endl;
-	}
-};
-
-///   Days and Months Practice Functions   ///
-void DaysAndMonths(bool&);
-
-///   Written Number Functions   ///
-string UserInputWritten();
-void WrittenToNum(bool&);
-
-///   Enumerated Number Functions   ///
-unsigned long long UserInputEnumerated();
-void NumToWritten(bool&);
-
-///   Calculation Functions   ///
-string WrittenFrenchNumbers(unsigned long long);
-void WrittenFrenchNum0to99(string&, unsigned long long&);
-void WrittenFrenchNumHundredsPlace(string&, unsigned long long);
-
-///   Global Variable   ///
-unsigned long long rangeMax;
-unsigned correctAnswers;
-unsigned incorrectAnswers;
-unsigned hintsGiven;
-
-
-/***********
-*   Main   *
-************/
-
-int main()
-{
-	///   Initialize Variables   ///
-	enum PracticeForm { WritToNum = 1, NumToWrit = 2, DaysMonths = 3, Random = 4 };
-	unsigned desiredPracticeForm, randomOption = 0;
-	bool practiceEnd = false;
-
-	map<string, float> time;
-	Timer timer;
-	time["total"] = timer.endTimer();
-
-	///   Welcome the User   ///
-	StartingScript(desiredPracticeForm);
-	const unsigned userRandMax = rangeMax;
-
-	///   Global Variables   ///
-	correctAnswers = incorrectAnswers = hintsGiven = 0;
-
-	//chrono::time_point<chrono::steady_clock> times = chrono::high_resolution_clock::now();
-	//time["total"] = times;
-	do {
-		if (desiredPracticeForm == Random)
-			randomOption = RandomOption(3);
-
-		// Continues rangeMax hardcoding for the Days and the Months option (see note in StartingScript function)
-		rangeMax = (randomOption == 3) ? 19 : userRandMax;
-
-		if (desiredPracticeForm == WritToNum || randomOption == 1)
-			do WrittenToNum(practiceEnd);
-			while (!practiceEnd && desiredPracticeForm != Random);
-		else if (desiredPracticeForm == NumToWrit || randomOption == 2)
-			do NumToWritten(practiceEnd);
-			while (!practiceEnd && desiredPracticeForm != Random);
-		else if (desiredPracticeForm == DaysMonths || randomOption == 3)
-			do DaysAndMonths(practiceEnd);
-			while (!practiceEnd && desiredPracticeForm != Random);
-		else throw invalid_argument("Error: Invalid practice form passed");
-	} while (desiredPracticeForm == Random && !practiceEnd);
-
-	//chrono::duration<float> totalDuration = end - start;
-
-	const unsigned percentCorrect = (correctAnswers * 100) / (correctAnswers + incorrectAnswers);
-
-	cout << "Congrats! You finished." << endl
-		<< "Incorrect Answers: " << incorrectAnswers << endl
-		<< "Correct Answers: " << correctAnswers << endl;
-	if (hintsGiven > 0)
-		cout << "Hints Given: " << hintsGiven << endl;
-	cout << "Percent Correct: " << percentCorrect << endl
-		<< "Time taken on the correct questions: " << time["correct"] << "s " << endl
-		<< "Time taken on the incorrect questions: " << time["incorrect"] << "s " << endl
-		<< "Total duration: " << time["total"] << "s " << endl;
-
-	return 0;
-}
-
 
 /************************
 *   General Functions   *
@@ -405,18 +285,19 @@ void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long& number)
 		"", "onze-", "douze-", "treize-", "quatorze-", "quinze-", "seize-", "dix-sept-", "dix-huit-", "dix-neuf-"
 	};
 	const string Writ10to90[10] = {
-		"", "dix-", "vingt-", "trente-", "quarante-", "cinquante-", "soixante-", "soixante-", "quatre-vingt-",
-		"quatre-vingt-"
+		"", "dix-", "vingt-", "trente-", "quarante-", "cinquante-", "soixante-", "soixante-dix-", "quatre-vingt-", "quatre-vingt-dix-"
 	};
 
-	if (number < 10) { // 1 to 9
+	if (number < 10) {
+		// 1 to 9
 		WritNumbers += Writ0to9[number];
-	} else { // 10 to 99
+	} else {
+		// 10 to 99
 		const unsigned long long tens = number / 10;
 		const uint8_t ones = number % 10;
 
-		if ((11 <= number && number <= 19) || (70 <= number && number <= 79) || (90 <= number && number <= 99)) {
-			if (number >= 70 && number <= 79 || number >= 90 && number <= 99)
+		if ((11 <= number && number <= 19) || (71 <= number && number <= 79) || (91 <= number && number <= 99)) {
+			if (number >= 71 && number <= 79 || number >= 91 && number <= 99)
 				WritNumbers += Writ10to90[tens];
 			WritNumbers += Writ11to19[ones];
 		} else if (!ones) { // TENS: 10, 20, 30, ..., 90
