@@ -241,8 +241,8 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process billions
 	if (constexpr unsigned ONE_BILLION = 1000000000; number >= ONE_BILLION) {
-		if (unsigned long long tempNumber = number / ONE_BILLION; tempNumber > 1) // avoids "un-cent-..." which is not a number
-			WrittenFrenchNum0to99(WritNumbers, tempNumber);
+		unsigned long long tempNumber = number / ONE_BILLION;
+		WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[4];
 		number %= ONE_BILLION;
 		if (number > 0) WritNumbers += "-";
@@ -250,8 +250,8 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process millions
 	if (constexpr unsigned ONE_MILLION = 1000000; number >= ONE_MILLION) {
-		if (unsigned long long tempNumber = number / ONE_MILLION; tempNumber > 1) // avoids "un-mille-..." which is not a number
-			WrittenFrenchNum0to99(WritNumbers, tempNumber);
+		unsigned long long tempNumber = number / ONE_MILLION;
+		WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[3];
 		number %= ONE_MILLION;
 		if (number > 0) WritNumbers += "-";
@@ -335,5 +335,6 @@ void WrittenFrenchNumHundredsPlace(string& WritNumbers, unsigned long long numbe
 
 	///   Output the other numbers   ///  // (834 becomes 34)
 	number %= ONE_HUNDRED;
-	WrittenFrenchNum0to99(WritNumbers, number);
+	if (number > 0)
+		WrittenFrenchNum0to99(WritNumbers, number);
 }
