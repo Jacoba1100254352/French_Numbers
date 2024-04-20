@@ -241,35 +241,37 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process billions
 	if (constexpr unsigned ONE_BILLION = 1000000000; number >= ONE_BILLION) {
-		const unsigned long long tempNumber = number / ONE_BILLION;
-		WrittenFrenchNumHundredsPlace(WritNumbers, tempNumber);
+		if (unsigned long long tempNumber = number / ONE_BILLION; tempNumber > 1) // avoids "un-cent-..." which is not a number
+			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[4];
 		number %= ONE_BILLION;
 	}
 
 	// Process millions
 	if (constexpr unsigned ONE_MILLION = 1000000; number >= ONE_MILLION) {
-		const unsigned long long tempNumber = number / ONE_MILLION;
-		WrittenFrenchNumHundredsPlace(WritNumbers, tempNumber);
+		if (unsigned long long tempNumber = number / ONE_MILLION; tempNumber > 1) // avoids "un-mille-..." which is not a number
+			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[3];
 		number %= ONE_MILLION;
 	}
 
 	// Process thousands
 	if (constexpr unsigned ONE_THOUSAND = 1000; number >= ONE_THOUSAND) {
-		if (number != ONE_THOUSAND)
-			WrittenFrenchNumHundredsPlace(WritNumbers, number / ONE_THOUSAND);
+		if (unsigned long long tempNumber = number / ONE_THOUSAND; tempNumber > 1) // avoids "un-mille-..." which is not a number
+			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[2];
 		number %= ONE_THOUSAND;
 	}
 
 	// Process remaining numbers (0 to 999)
-	WrittenFrenchNumHundredsPlace(WritNumbers, number);
+	if (number > 0) {
+		WrittenFrenchNumHundredsPlace(WritNumbers, number);
+	}
 
 	// If the result is empty, the number is zero
 	if (WritNumbers.empty())
 		WritNumbers = "zéro";
-		// Remove the trailing hyphen, if any
+	// Remove the trailing hyphen, if any
 	else if (WritNumbers.back() == '-')
 		WritNumbers.pop_back();
 
@@ -298,7 +300,7 @@ void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long& number)
 
 		if ((11 <= number && number <= 19) || (71 <= number && number <= 79) || (91 <= number && number <= 99)) {
 			if (number >= 71 && number <= 79 || number >= 91 && number <= 99)
-				WritNumbers += Writ10to90[tens];
+				WritNumbers += Writ10to90[tens - 1]; // Subtract 1 from tens to avoid appending "dix-" twice
 			WritNumbers += Writ11to19[ones];
 		} else if (!ones) { // TENS: 10, 20, 30, ..., 90
 			WritNumbers += Writ10to90[tens];
@@ -308,8 +310,8 @@ void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long& number)
 				WritNumbers += "et-";
 			WritNumbers += Writ0to9[ones];
 		}
+		number = 0;
 	}
-	number = 0;
 }
 
 void WrittenFrenchNumHundredsPlace(string& WritNumbers, unsigned long long number)
