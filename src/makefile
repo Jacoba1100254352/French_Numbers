@@ -1,4 +1,9 @@
+CXX := g++
+CXXFLAGS := -std=c++23 -Wall -Wextra -pedantic
+
+.PHONY: all
+
 all:
 	clear
-	g++ -std=c++11 main.cpp -o numbers
+	$(CXX) $(CXXFLAGS) main.cpp french_numbers.cpp -o numbers
 	./numbers

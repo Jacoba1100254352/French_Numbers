@@ -80,6 +80,18 @@ TEST_CASE("Test WrittenFrenchNum0to99 function")
     CHECK(result == "vingt-et-un-");
     result.clear();
 
+    // Test for 71
+    number = 71;
+    WrittenFrenchNum0to99(result, number);
+    CHECK(result == "soixante-et-onze-");
+    result.clear();
+
+    // Test for 80
+    number = 80;
+    WrittenFrenchNum0to99(result, number);
+    CHECK(result == "quatre-vingts-");
+    result.clear();
+
     // Test for 99
     number = 99;
     WrittenFrenchNum0to99(result, number);
@@ -166,19 +178,31 @@ TEST_CASE("Test WrittenFrenchNumbers function")
     // Test for 10000000
     number = 10000000;
     result = WrittenFrenchNumbers(number);
-    CHECK(result == "dix-million");
+    CHECK(result == "dix-millions");
     result.clear();
 
     // Test for 100000000
     number = 100000000;
     result = WrittenFrenchNumbers(number);
-    CHECK(result == "cent-million");
+    CHECK(result == "cent-millions");
     result.clear();
 
     // Test for 1000000000
     number = 1000000000;
     result = WrittenFrenchNumbers(number);
     CHECK(result == "un-milliard");
+    result.clear();
+
+    // Test for 200000
+    number = 200000;
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "deux-cent-mille");
+    result.clear();
+
+    // Test for 80000
+    number = 80000;
+    result = WrittenFrenchNumbers(number);
+    CHECK(result == "quatre-vingt-mille");
     result.clear();
 }
 

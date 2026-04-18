@@ -1,6 +1,7 @@
 #include "french_numbers.h"
 
 #include <map>
+#include <stdexcept>
 
 /***********
 *   Main   *
@@ -13,9 +14,8 @@ int main()
 	unsigned desiredPracticeForm, randomOption = 0;
 	bool practiceEnd = false;
 
-	map<string, float> time;
-	Timer timer;
-	time["total"] = timer.endTimer();
+	map<string, float> time = {{"correct", 0.0f}, {"incorrect", 0.0f}, {"total", 0.0f}};
+	Timer totalTimer;
 
 	///   Welcome the User   ///
 	StartingScript(desiredPracticeForm);
@@ -47,7 +47,9 @@ int main()
 
 	//chrono::duration<float> totalDuration = end - start;
 
-	const unsigned percentCorrect = (correctAnswers * 100) / (correctAnswers + incorrectAnswers);
+	time["total"] = totalTimer.endTimer();
+	const unsigned totalAnswers = correctAnswers + incorrectAnswers;
+	const unsigned percentCorrect = totalAnswers ? (correctAnswers * 100) / totalAnswers : 0;
 
 	cout << "Congrats! You finished." << endl
 		<< "Incorrect Answers: " << incorrectAnswers << endl
