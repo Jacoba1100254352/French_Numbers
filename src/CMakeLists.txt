@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(French_Numbers)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(dependencies)
 
@@ -13,6 +14,7 @@ target_include_directories(StoreLib
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(StoreLib PUBLIC ghc_filesystem)
+target_link_libraries(French_Numbers PRIVATE StoreLib)
 
 enable_testing()
 add_subdirectory(tests)

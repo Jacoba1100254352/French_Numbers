@@ -241,8 +241,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process billions
 	if (constexpr unsigned ONE_BILLION = 1000000000; number >= ONE_BILLION) {
-		unsigned long long tempNumber = number / ONE_BILLION;
-		WrittenFrenchNum0to99(WritNumbers, tempNumber);
+		WrittenFrenchNum100(WritNumbers, number / ONE_BILLION);
 		WritNumbers += Writ100to1Billion[4];
 		number %= ONE_BILLION;
 		if (number > 0) WritNumbers += "-";
@@ -250,8 +249,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process millions
 	if (constexpr unsigned ONE_MILLION = 1000000; number >= ONE_MILLION) {
-		unsigned long long tempNumber = number / ONE_MILLION;
-		WrittenFrenchNum0to99(WritNumbers, tempNumber);
+		WrittenFrenchNum100(WritNumbers, number / ONE_MILLION);
 		WritNumbers += Writ100to1Billion[3];
 		number %= ONE_MILLION;
 		if (number > 0) WritNumbers += "-";
@@ -259,17 +257,15 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 	// Process thousands
 	if (constexpr unsigned ONE_THOUSAND = 1000; number >= ONE_THOUSAND) {
-		if (unsigned long long tempNumber = number / ONE_THOUSAND; tempNumber > 1) // avoids "un-mille-..." which is not a number
-			WrittenFrenchNum0to99(WritNumbers, tempNumber);
+		if (const unsigned long long tempNumber = number / ONE_THOUSAND; tempNumber > 1) // avoids "un-mille-..." which is not a number
+			WrittenFrenchNum100(WritNumbers, tempNumber);
 		WritNumbers += Writ100to1Billion[2];
 		number %= ONE_THOUSAND;
 		if (number > 0) WritNumbers += "-";
 	}
 
 	// Process remaining numbers (0 to 999)
-	if (number > 0) {
-		WrittenFrenchNumHundredsPlace(WritNumbers, number);
-	}
+	if (number > 0) WrittenFrenchNum100(WritNumbers, number);
 
 	// If the result is empty, the number is zero
 	if (WritNumbers.empty())
@@ -281,7 +277,7 @@ string WrittenFrenchNumbers(unsigned long long number)
 	return WritNumbers;
 }
 
-void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long& number)
+void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long number)
 {
 	const string Writ0to9[10] = {
 		"zéro-", "un-", "deux-", "trois-", "quatre-", "cinq-", "six-", "sept-", "huit-", "neuf-"
@@ -317,12 +313,12 @@ void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long& number)
 	}
 }
 
-void WrittenFrenchNumHundredsPlace(string& WritNumbers, unsigned long long number)
+void WrittenFrenchNum100(string& WritNumbers, unsigned long long number)
 {
 	constexpr unsigned ONE_HUNDRED = 100;
 
 	if (number >= ONE_HUNDRED) {
-		unsigned long long tempNumber = number / ONE_HUNDRED;
+		const unsigned long long tempNumber = number / ONE_HUNDRED;
 		if (tempNumber > 1) // avoids "un-cent-..." which is not a number
 			WrittenFrenchNum0to99(WritNumbers, tempNumber);
 

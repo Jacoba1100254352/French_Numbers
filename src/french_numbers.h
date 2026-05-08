@@ -52,8 +52,8 @@ void NumToWritten(bool&);
 
 ///   Calculation Functions   ///
 string WrittenFrenchNumbers(unsigned long long);
-void WrittenFrenchNum0to99(string&, unsigned long long&);
-void WrittenFrenchNumHundredsPlace(string&, unsigned long long);
+void WrittenFrenchNum0to99(string&, unsigned long long);
+void WrittenFrenchNum100(string&, unsigned long long);
 
 ///   Global Variable   ///
 inline unsigned long long rangeMax;
