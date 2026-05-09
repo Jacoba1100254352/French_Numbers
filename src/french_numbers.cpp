@@ -1,18 +1,138 @@
 #include "french_numbers.h"
 
+#include <cstdint>
 #include <random>
+#include <stdexcept>
+
+namespace {
+
+void WrittenFrenchNum0to99Impl(string& writNumbers, unsigned long long& number, const bool isTerminal)
+{
+	const string writ0to9[10] = {
+		"zéro-", "un-", "deux-", "trois-", "quatre-", "cinq-", "six-", "sept-", "huit-", "neuf-"
+	};
+	const string writ10to19[10] = {
+		"dix-", "onze-", "douze-", "treize-", "quatorze-", "quinze-", "seize-", "dix-sept-", "dix-huit-", "dix-neuf-"
+	};
+	const string writ20to60[7] = {
+		"", "", "vingt-", "trente-", "quarante-", "cinquante-", "soixante-"
+	};
+
+	if (number < 10) {
+		writNumbers += writ0to9[number];
+		number = 0;
+		return;
+	}
+
+	if (number < 20) {
+		writNumbers += writ10to19[number - 10];
+		number = 0;
+		return;
+	}
+
+	if (number < 70) {
+		const unsigned long long tens = number / 10;
+		const uint8_t ones = number % 10;
+
+		writNumbers += writ20to60[tens];
+		if (ones == 1)
+			writNumbers += "et-";
+		if (ones != 0)
+			writNumbers += writ0to9[ones];
+
+		number = 0;
+		return;
+	}
+
+	if (number < 80) {
+		if (number == 71)
+			writNumbers += "soixante-et-onze-";
+		else
+			writNumbers += "soixante-" + writ10to19[number - 70];
+
+		number = 0;
+		return;
+	}
+
+	if (number == 80) {
+		writNumbers += isTerminal ? "quatre-vingts-" : "quatre-vingt-";
+		number = 0;
+		return;
+	}
+
+	writNumbers += "quatre-vingt-";
+
+	const unsigned long long remainder = number - 80;
+	if (remainder < 10)
+		writNumbers += writ0to9[remainder];
+	else
+		writNumbers += writ10to19[remainder - 10];
+
+	number = 0;
+}
+
+void WrittenFrenchNumHundredsPlaceImpl(string& writNumbers, unsigned long long number, const bool isTerminal)
+{
+	constexpr unsigned ONE_HUNDRED = 100;
+
+	if (number >= ONE_HUNDRED) {
+		unsigned long long tempNumber = number / ONE_HUNDRED;
+		if (tempNumber > 1)
+			WrittenFrenchNum0to99Impl(writNumbers, tempNumber, false);
+
+		const bool hasRemainder = number % ONE_HUNDRED != 0;
+		if (tempNumber == 1 || hasRemainder || !isTerminal)
+			writNumbers += "cent-";
+		else
+			writNumbers += "cents-";
+	}
+
+	number %= ONE_HUNDRED;
+	if (number > 0)
+		WrittenFrenchNum0to99Impl(writNumbers, number, isTerminal);
+}
+
+void AppendScaleChunk(
+	string& writNumbers,
+	unsigned long long& number,
+	const unsigned long long divisor,
+	const string& scale,
+	const bool pluralizeScale,
+	const bool omitOne,
+	const bool isTerminalChunk)
+{
+	if (number < divisor)
+		return;
+
+	const unsigned long long chunk = number / divisor;
+	if (!(omitOne && chunk == 1))
+		WrittenFrenchNumHundredsPlaceImpl(writNumbers, chunk, isTerminalChunk);
+
+	writNumbers += scale;
+	if (pluralizeScale && chunk > 1)
+		writNumbers += "s";
+
+	number %= divisor;
+	if (number > 0)
+		writNumbers += "-";
+}
+
+} // namespace
 
 /************************
 *   General Functions   *
 ************************/
-unsigned long long RandomOption(const double maxVal = static_cast<double>(rangeMax))
+unsigned long long RandomOption(const double maxVal)
 {
-	///   Use random library to effectively randomize the dice rolls   ///
-	random_device rd;
-	mt19937 mt(rd());
-	uniform_real_distribution<> randomDistribution(1, maxVal + 1); // Add one to make it inclusive
+	const auto upperBound = maxVal >= 1 ? static_cast<unsigned long long>(maxVal) : rangeMax;
+	if (upperBound < 1)
+		throw invalid_argument("RandomOption maxVal must be positive");
 
-	return static_cast<unsigned long long>(randomDistribution(mt));
+	random_device rd;
+	mt19937_64 mt(rd());
+	uniform_int_distribution<unsigned long long> randomDistribution(1, upperBound);
+
+	return randomDistribution(mt);
 }
 
 unsigned StartingScript(unsigned& desiredPracticeForm)
@@ -186,11 +306,16 @@ unsigned long long UserInputEnumerated()
 		// Failsafe for correct user input
 		try {
 			if (userAnswer != "?") {
-				return stoi(userAnswer);
+				size_t processedCharacters = 0;
+				const auto parsedValue = stoull(userAnswer, &processedCharacters);
+				if (processedCharacters == userAnswer.size())
+					return parsedValue;
 			}
 		} catch (...) {
-			cout << "Invalid input, please try again." << endl;
 		}
+
+		if (userAnswer != "?")
+			cout << "Invalid input, please try again." << endl;
 
 		if (userAnswer == "?") {
 			constexpr unsigned ASCII_Q_Mark = 00101111;
@@ -237,35 +362,18 @@ void WrittenToNum(bool& practiceEnd)
 string WrittenFrenchNumbers(unsigned long long number)
 {
 	string WritNumbers;
-	const string Writ100to1Billion[5] = {"cent", "cents", "mille", "million", "milliard"};
 
-	// Process billions
-	if (constexpr unsigned ONE_BILLION = 1000000000; number >= ONE_BILLION) {
-		WrittenFrenchNum100(WritNumbers, number / ONE_BILLION);
-		WritNumbers += Writ100to1Billion[4];
-		number %= ONE_BILLION;
-		if (number > 0) WritNumbers += "-";
-	}
+	constexpr unsigned long long ONE_BILLION = 1000000000;
+	constexpr unsigned long long ONE_MILLION = 1000000;
+	constexpr unsigned long long ONE_THOUSAND = 1000;
 
-	// Process millions
-	if (constexpr unsigned ONE_MILLION = 1000000; number >= ONE_MILLION) {
-		WrittenFrenchNum100(WritNumbers, number / ONE_MILLION);
-		WritNumbers += Writ100to1Billion[3];
-		number %= ONE_MILLION;
-		if (number > 0) WritNumbers += "-";
-	}
-
-	// Process thousands
-	if (constexpr unsigned ONE_THOUSAND = 1000; number >= ONE_THOUSAND) {
-		if (const unsigned long long tempNumber = number / ONE_THOUSAND; tempNumber > 1) // avoids "un-mille-..." which is not a number
-			WrittenFrenchNum100(WritNumbers, tempNumber);
-		WritNumbers += Writ100to1Billion[2];
-		number %= ONE_THOUSAND;
-		if (number > 0) WritNumbers += "-";
-	}
+	AppendScaleChunk(WritNumbers, number, ONE_BILLION, "milliard", true, false, true);
+	AppendScaleChunk(WritNumbers, number, ONE_MILLION, "million", true, false, true);
+	AppendScaleChunk(WritNumbers, number, ONE_THOUSAND, "mille", false, true, false);
 
 	// Process remaining numbers (0 to 999)
-	if (number > 0) WrittenFrenchNum100(WritNumbers, number);
+	if (number > 0)
+		WrittenFrenchNumHundredsPlaceImpl(WritNumbers, number, true);
 
 	// If the result is empty, the number is zero
 	if (WritNumbers.empty())
@@ -279,58 +387,10 @@ string WrittenFrenchNumbers(unsigned long long number)
 
 void WrittenFrenchNum0to99(string& WritNumbers, unsigned long long number)
 {
-	const string Writ0to9[10] = {
-		"zéro-", "un-", "deux-", "trois-", "quatre-", "cinq-", "six-", "sept-", "huit-", "neuf-"
-	};
-	const string Writ11to19[10] = {
-		"", "onze-", "douze-", "treize-", "quatorze-", "quinze-", "seize-", "dix-sept-", "dix-huit-", "dix-neuf-"
-	};
-	const string Writ10to90[10] = {
-		"", "dix-", "vingt-", "trente-", "quarante-", "cinquante-", "soixante-", "soixante-dix-", "quatre-vingt-", "quatre-vingt-dix-"
-	};
-
-	if (number < 10) {
-		// 1 to 9
-		WritNumbers += Writ0to9[number];
-	} else {
-		// 10 to 99
-		const unsigned long long tens = number / 10;
-		const uint8_t ones = number % 10;
-
-		if ((11 <= number && number <= 19) || (71 <= number && number <= 79) || (91 <= number && number <= 99)) {
-			if (number >= 71 && number <= 79 || number >= 91 && number <= 99)
-				WritNumbers += Writ10to90[tens - 1]; // Subtract 1 from tens to avoid appending "dix-" twice
-			WritNumbers += Writ11to19[ones];
-		} else if (!ones) { // TENS: 10, 20, 30, ..., 90
-			WritNumbers += Writ10to90[tens];
-		} else { ///   Add "et-" to numbers 21-71 that have "1"   ///
-			WritNumbers += Writ10to90[tens];
-			if (ones == 1 && 20 < number && number <= 71)
-				WritNumbers += "et-";
-			WritNumbers += Writ0to9[ones];
-		}
-		number = 0;
-	}
+	WrittenFrenchNum0to99Impl(WritNumbers, number, true);
 }
 
 void WrittenFrenchNum100(string& WritNumbers, unsigned long long number)
 {
-	constexpr unsigned ONE_HUNDRED = 100;
-
-	if (number >= ONE_HUNDRED) {
-		const unsigned long long tempNumber = number / ONE_HUNDRED;
-		if (tempNumber > 1) // avoids "un-cent-..." which is not a number
-			WrittenFrenchNum0to99(WritNumbers, tempNumber);
-
-		///   Add Hundred's prefix   ///
-		if (tempNumber == 1 || number % ONE_HUNDRED >= 1)
-			WritNumbers += "cent-";
-		else if (!(number % ONE_HUNDRED))
-			WritNumbers += "cents-";
-	}
-
-	///   Output the other numbers   ///  // (834 becomes 34)
-	number %= ONE_HUNDRED;
-	if (number > 0)
-		WrittenFrenchNum0to99(WritNumbers, number);
+	WrittenFrenchNumHundredsPlaceImpl(WritNumbers, number, true);
 }

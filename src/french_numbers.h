@@ -9,7 +9,7 @@ using namespace std;
 using namespace literals::chrono_literals;
 
 ///   General Functions   ///
-unsigned long long RandomOption(double maxVal);
+unsigned long long RandomOption(double maxVal = 0);
 unsigned StartingScript(unsigned&);
 
 //unsigned Timer();
